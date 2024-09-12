@@ -2,15 +2,44 @@ import React, { useRef, useState } from 'react'
 import { MdLocationOn } from 'react-icons/md'
 import { HiCalendar, HiMinus, HiPlus, HiSearch } from 'react-icons/hi'
 import useOutsideClick from '../../hooks/useOutsideClick';
+import 'react-date-range/dist/styles.css'; // main style file
+import 'react-date-range/dist/theme/default.css'; // theme css file
+import { DateRange } from 'react-date-range';
+import format from 'date-fns/format';
+import { createSearchParams, useNavigate, useSearchParams } from 'react-router-dom';
 
 function Header() {
-    const [destination, setDestination] = useState('')
+    const [searchParams, setSearchParams] = useSearchParams()
+    const [destination, setDestination] = useState(
+        searchParams.get("destination") || ""
+    );
     const [openOptions, setOpenOptions] = useState(false);
     const [options, setOptions] = useState({
         adult: 1,
         children: 0,
         room: 1,
     })
+    const [date, setDate] = useState([{
+        startDate: new Date(),
+        endDate: new Date(),
+        key: 'selection',
+    }])
+    const [openDate, setOpenDate] = useState(false);
+    const navigate = useNavigate()
+
+
+    const handleSearch = () => {
+        const encodedParams = createSearchParams({
+            date: JSON.stringify(date),
+            destination,
+            options: JSON.stringify(options),
+        })
+
+        navigate({
+            pathname: '/hotels',
+            search: encodedParams.toString()
+        })
+    }
 
     const handleOption = (name, operation) => {
         setOptions(prev => {
@@ -38,7 +67,16 @@ function Header() {
                 </div>
                 <div className="headerSearchItem">
                     <HiCalendar className='headerIcon dateIcon' />
-                    <div className="dateDropDown">2023/06/21</div>
+                    <div onClick={() => setOpenDate(!openDate)} className="dateDropDown">
+                        {`${format(date[0].startDate, 'MM/dd/yyyy')} to ${format(date[0].endDate, 'MM/dd/yyyy')}`}
+                    </div>
+                    {openDate && <DateRange
+                        onChange={item => setDate([item.selection])}
+                        ranges={date}
+                        className='date'
+                        minDate={new Date()}
+                        moveRangeOnFirstSelection={true}
+                    />}
                     <span className="seperator"></span>
                 </div>
                 <div className="headerSearchItem">
@@ -50,7 +88,7 @@ function Header() {
                 </div>
                 <div className="headerSearchItem">
                     <button className="headerSearchBtn">
-                        <HiSearch className='headerIcon' />
+                        <HiSearch className='headerIcon' onClick={handleSearch} />
                     </button>
                 </div>
             </div>
