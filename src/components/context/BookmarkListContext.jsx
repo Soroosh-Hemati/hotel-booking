@@ -4,7 +4,7 @@ import useFetch from '../../hooks/useFetch'
 import toast from 'react-hot-toast';
 import axios from 'axios';
 
-const HotelContext = createContext();
+const BookmarkContext = createContext();
 const BASE_URL = 'http://localhost:5000';
 
 function BookmarkListProvider({ children }) {
@@ -13,7 +13,7 @@ function BookmarkListProvider({ children }) {
 
 
 
-    const { isLoading, data: bookmarks } = useFetch(`${BASE_URL}/bookmark`);
+    const { isLoading, data: bookmarks } = useFetch(`${BASE_URL}/bookmarks`);
 
     async function getBookmark(id) {
         setIsLoadingCurrBookmark(true)
@@ -38,5 +38,5 @@ function BookmarkListProvider({ children }) {
 export default BookmarkListProvider
 
 export function useBookmark() {
-    return useContext(HotelContext)
+    return useContext(BookmarkContext)
 }
