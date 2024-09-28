@@ -1,4 +1,4 @@
-import React, { useContext, useState } from 'react'
+import React, { useContext, useEffect, useState } from 'react'
 import { createContext } from 'react'
 import useFetch from '../../hooks/useFetch'
 import toast from 'react-hot-toast';
@@ -9,27 +9,52 @@ const BASE_URL = 'http://localhost:5000';
 
 function BookmarkListProvider({ children }) {
     const [currentBookmark, setCurrentBookmark] = useState(null);
-    const [isLoadingCurrBookmark, setIsLoadingCurrBookmark] = useState(false);
+    const [bookmarks, setBookmarks] = useState([])
+    const [isLoading, setIsLoading] = useState(false)
 
-
-
-    const { isLoading, data: bookmarks } = useFetch(`${BASE_URL}/bookmarks`);
+    useEffect(() => {
+        async function fetchAllBookmarks() {
+            setIsLoading(true)
+            try {
+                const { data } = await axios.get(`${BASE_URL}/bookmarks`)
+                setBookmarks(data)
+            } catch (error) {
+                toast.error(error.message)
+            } finally {
+                setIsLoading(false);
+            }
+        }
+        fetchAllBookmarks();
+    }, [])
 
     async function getBookmark(id) {
-        setIsLoadingCurrBookmark(true)
+        setIsLoading(true)
         try {
             const { data } = await axios.get(`${BASE_URL}/bookmarks/${id}`)
             setCurrentBookmark(data)
-            setIsLoadingCurrBookmark(false)
         } catch (error) {
             toast.error(error.message)
-            setIsLoadingCurrBookmark(false);
+        } finally {
+            setIsLoading(false);
+        }
+    }
+    async function createBookmark(newBookmark) {
+        setIsLoading(true)
+        try {
+            const { data } = await axios.post(`${BASE_URL}/bookmarks`, newBookmark)
+            console.log(data);
+            setCurrentBookmark(data)
+            setBookmarks((prev) => [...prev, data])
+        } catch (error) {
+            toast.error(error.message)
+        } finally {
+            setIsLoading(false);
         }
     }
 
 
     return (
-        <BookmarkContext.Provider value={{ isLoading, bookmarks, currentBookmark, getBookmark, isLoadingCurrBookmark }}>
+        <BookmarkContext.Provider value={{ isLoading, bookmarks, currentBookmark, getBookmark, isLoading, createBookmark }}>
             {children}
         </BookmarkContext.Provider>
     )

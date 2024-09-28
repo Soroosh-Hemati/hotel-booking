@@ -5,7 +5,7 @@ import { useNavigate, useParams } from 'react-router-dom';
 function SingleBookmark() {
     const { id } = useParams();
     const navigate = useNavigate();
-    const { getBookmark, isLoadingCurrBookmark, currentBookmark } = useBookmark();
+    const { getBookmark, isLoading, currentBookmark } = useBookmark();
 
     useEffect(() => {
         getBookmark(id)
@@ -15,7 +15,7 @@ function SingleBookmark() {
         navigate(-1);
     }
 
-    if (isLoadingCurrBookmark || !currentBookmark) return <div>loading...</div>
+    if (isLoading || !currentBookmark) return <div>loading...</div>
 
     return (
         <div>
